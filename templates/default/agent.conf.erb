@@ -9,12 +9,12 @@ input {
 
   file {
     type => "apache-access"
-    path => "/var/log/apache2/access.log"
+    path => "<%= @apache_log_dir %>/access.log"
   }
 
   file {
     type => "apache-error"
-    path => "/var/log/apache2/error.log"
+    path => "<%= @apache_log_dir %>/error.log"
   }
 }
 
@@ -27,5 +27,12 @@ output {
   # The 'embedded' option will cause logstash to run the elasticsearch
   # server in the same process, so you don't have to worry about
   # how to download, configure, or run elasticsearch!
-  elasticsearch { embedded => true }
+  elasticsearch {
+<% if node[:logstash][:elasticsearch][:embedded] -%>
+    embedded => true
+<% else -%>
+    <% if node[:logstash][:elasticsearch][:cluster] -%>cluster => "<%= node[:logstash][:elasticsearch][:cluster] %>"<% end -%>
+    host => "<%= node[:logstash][:elasticsearch][:host] %>"
+<% end -%>
+  }
 }

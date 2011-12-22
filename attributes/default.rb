@@ -17,6 +17,29 @@
 # limitations under the License.
 #
 
-default['logstash']['version'] = "1.0.14"
-default['logstash']['checksum'] = "06fc4d82dc87d65a581c881b94cb34735bab5186121cd05f3daa5e80f3357807"
-default['logstash']['install_path'] = "/srv/logstash"
+default[:logstash][:version]  = "1.0.17"
+default[:logstash][:checksum] = "caba048cb1ab3cc608d4569246f8b7effbb8272865c7864a662566c30517316c"
+
+default[:logstash][:install_path] = "/srv/logstash"
+default[:logstash][:config_path]  = "/etc/logstash"
+default[:logstash][:log_path]     = "/var/log/logstash"
+default[:logstash][:pattern_path] = nil # if you have grok installed, you can set this and the agent will use it
+
+default[:logstash][:component] = [ 'agent', 'web' ]
+
+default[:logstash][:user_login] = 'logstash'
+default[:logstash][:user_uid]   = 61022
+default[:logstash][:user_group] = 'logstash'
+default[:logstash][:user_group_gid] = 61022
+
+default[:logstash][:java_agent] = '256'
+default[:logstash][:java_web] = '256'
+
+# Values:
+# runit [for ubuntu, debian, gentoo ]
+# daemonize [ for RH, centos, scientific]
+default[:logstash][:init_style] = "runit"
+
+default[:logstash][:elasticsearch][:embedded] = true
+default[:logstash][:elasticsearch][:host]     = 'localhost' # if embedded = false, then these are used
+default[:logstash][:elasticsearch][:cluster]  = nil
