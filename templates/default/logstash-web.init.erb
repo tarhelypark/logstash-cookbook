@@ -20,23 +20,23 @@
 APP="web"
 
 # Amount of memory for Java
-JAVAMEM=<%= node[:logstash][:java_agent] %>
+JAVAMEM=<%= node['logstash']['java_agent'] %>
 
 # User to run logstash server as
-LOGSTASH_USER=<%= node[:logstash][:user_login] %>
+LOGSTASH_USER=<%= node['logstash']['user_login'] %>
 
 # Location of logstash files
-LOCATION=<%= node[:logstash][:install_path] %>
+LOCATION=<%= node['logstash']['install_path'] %>
 
 PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 DESC="Logstash ${APP} daemon"
 NAME=java
 DAEMON=`which java`
-CONFIG_DIR="<%= node[:logstash][:config_path] %>"
-LOGFILE_OUT="<%= node[:logstash][:log_path] %>/logstash-${APP}.log"
-LOGFILE_ERR="<%= node[:logstash][:log_path] %>/logstash-${APP}.err"
+CONFIG_DIR="<%= node['logstash']['config_path'] %>"
+LOGFILE_OUT="<%= node['logstash']['log_path'] %>/logstash-${APP}.log"
+LOGFILE_ERR="<%= node['logstash']['log_path'] %>/logstash-${APP}.err"
 ARGS="-Xms${JAVAMEM}M -Xmx${JAVAMEM}M -jar logstash-monolithic.jar ${APP}"
-<% if ! node[:logstash][:elasticsearch][:embedded] -%>ARGS="$ARGS --backend elasticsearch://<%= node[:logstash][:elasticsearch][:host] %>/<% if node[:logstash][:elasticsearch][:cluster] -%><%= node[:logstash][:elasticsearch][:cluster] %><% end -%>"<% end -%>
+<% if ! node['logstash']['elasticsearch']['embedded'] -%>ARGS="$ARGS --backend elasticsearch://<%= node['logstash']['elasticsearch']['host'] %>/<% if node['logstash']['elasticsearch']['cluster'] -%><%= node['logstash']['elasticsearch']['cluster'] %><% end -%>"<% end -%>
 SCRIPTNAME="/etc/init.d/logstash-${APP}"
 PID="/var/run/logstash-${APP}.pid"
 LOCK="/var/lock/subsys/logstash-${APP}"

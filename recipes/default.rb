@@ -24,44 +24,44 @@ root_group = value_for_platform(
   "default" => "root"
 )
 
-group node[:logstash][:user_group] do
-  gid node[:logstash][:user_group_gid]
+group node['logstash']['user_group'] do
+  gid node['logstash']['user_group_gid']
 end
 
-user node[:logstash][:user_login] do
-  uid node[:logstash][:user_uid]
-  gid node[:logstash][:user_group]
+user node['logstash']['user_login'] do
+  uid node['logstash']['user_uid']
+  gid node['logstash']['user_group']
 end
 
-directory "#{node[:logstash][:install_path]}" do
-  owner node[:logstash][:user_login]
-  group node[:logstash][:user_group]
+directory "#{node['logstash']['install_path']}" do
+  owner node['logstash']['user_login']
+  group node['logstash']['user_group']
   mode 0755
 end
 
-directory "#{node[:logstash][:config_path]}" do
+directory "#{node['logstash']['config_path']}" do
   owner "root"
   group root_group
   mode 0755
 end
 
-directory "#{node[:logstash][:log_path]}" do
-  owner node[:logstash][:user_login]
-  group node[:logstash][:user_group]
+directory "#{node['logstash']['log_path']}" do
+  owner node['logstash']['user_login']
+  group node['logstash']['user_group']
   mode 0755
 end
 
-remote_file "#{node[:logstash][:install_path]}/logstash-monolithic.jar" do
-  source "http://semicomplete.com/files/logstash/logstash-#{node[:logstash][:version]}-monolithic.jar"
-  owner node[:logstash][:user_login]
-  group node[:logstash][:user_group]
-  checksum node[:logstash][:checksum]
-  node[:logstash][:component].each do |component|
+remote_file "#{node['logstash']['install_path']}/logstash-monolithic.jar" do
+  source "http://semicomplete.com/files/logstash/logstash-#{node['logstash']['version']}-monolithic.jar"
+  owner node['logstash']['user_login']
+  group node['logstash']['user_group']
+  checksum node['logstash']['checksum']
+  node['logstash']['component'].each do |component|
     notifies :restart, "service[logstash-#{component}]"
   end
 end
 
-if node[:logstash][:component].include?('agent')
+if node['logstash']['component'].include?('agent') && node['logstash']['default_agent_config']
 
   case node[:platform]
   when "redhat","centos","scientific","fedora","suse","arch"
@@ -72,7 +72,7 @@ if node[:logstash][:component].include?('agent')
     apache_log_dir = '/var/log/apache2'
   end
 
-  template "#{node[:logstash][:config_path]}/agent.conf" do
+  template "#{node['logstash']['config_path']}/agent.conf" do
     source "agent.conf.erb"
     owner "root"
     group root_group
@@ -85,8 +85,8 @@ if node[:logstash][:component].include?('agent')
 
 end
 
-node[:logstash][:component].each do |component|
-  case node[:logstash][:init_style]
+node['logstash']['component'].each do |component|
+  case node['logstash']['init_style']
   when 'daemonize'
 
     case node[:platform]

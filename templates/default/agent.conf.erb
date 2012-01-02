@@ -28,11 +28,11 @@ output {
   # server in the same process, so you don't have to worry about
   # how to download, configure, or run elasticsearch!
   elasticsearch {
-<% if node[:logstash][:elasticsearch][:embedded] -%>
+<% if node['logstash']['elasticsearch']['embedded'] -%>
     embedded => true
 <% else -%>
-    <% if node[:logstash][:elasticsearch][:cluster] -%>cluster => "<%= node[:logstash][:elasticsearch][:cluster] %>"<% end -%>
-    host => "<%= node[:logstash][:elasticsearch][:host] %>"
+    <% if node['logstash']['elasticsearch']['cluster'] -%>cluster => "<%= node['logstash']['elasticsearch']['cluster'] %>"<% end -%>
+    host => "<%= node['logstash']['elasticsearch']['host'] %>"
 <% end -%>
   }
 }
