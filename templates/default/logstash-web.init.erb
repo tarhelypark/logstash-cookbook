@@ -1,0 +1,125 @@
+#! /bin/sh
+#
+# logstash-web Startup script for the Logstash web
+#
+# chkconfig: - 70 45
+# description: The Logstash web
+# processname: logstash-web
+#
+### BEGIN INIT INFO
+# Provides: logstash
+# Required-Start: $local_fs $remote_fs
+# Required-Stop: $local_fs $remote_fs
+# Default-Start: 2 3 4 5
+# Default-Stop: S 0 1 6
+# Short-Description: Logstash
+# Description: Starts Logstash as the web component daemon.
+# Author: christian.paredes@sbri.org
+### END INIT INFO
+
+APP="web"
+
+# Amount of memory for Java
+JAVAMEM=<%= node['logstash']['java_agent'] %>
+
+# User to run logstash server as
+LOGSTASH_USER=<%= node['logstash']['user_login'] %>
+
+# Location of logstash files
+LOCATION=<%= node['logstash']['install_path'] %>
+
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+DESC="Logstash ${APP} daemon"
+NAME=java
+DAEMON=`which java`
+CONFIG_DIR="<%= node['logstash']['config_path'] %>"
+LOGFILE_OUT="<%= node['logstash']['log_path'] %>/logstash-${APP}.log"
+LOGFILE_ERR="<%= node['logstash']['log_path'] %>/logstash-${APP}.err"
+ARGS="-Xms${JAVAMEM}M -Xmx${JAVAMEM}M -jar logstash-monolithic.jar ${APP}"
+<% if ! node['logstash']['elasticsearch']['embedded'] -%>ARGS="$ARGS --backend elasticsearch://<%= node['logstash']['elasticsearch']['host'] %>/<% if node['logstash']['elasticsearch']['cluster'] -%><%= node['logstash']['elasticsearch']['cluster'] %><% end -%>"<% end -%>
+SCRIPTNAME="/etc/init.d/logstash-${APP}"
+PID="/var/run/logstash-${APP}.pid"
+LOCK="/var/lock/subsys/logstash-${APP}"
+
+# Exit if the package is not installed
+if [ ! -x "$DAEMON" ]; then
+{
+  echo "Couldn't find $DAEMON"
+  exit 99
+}
+fi
+
+# Define LSB functions.
+. /lib/lsb/init-functions
+
+#
+# Function that starts the daemon/service
+#
+do_start()
+{
+  # require daemonize utility
+  daemonize -a -p $PID -l $LOCK -c $LOCATION -o $LOGFILE_OUT -e $LOGFILE_ERR -u $LOGSTASH_USER $DAEMON $ARGS || return 2
+}
+
+#
+# Function that stops the daemon/service
+#
+do_stop()
+{
+  # other if a failure occurred
+  killproc -p $PID
+  RETVAL="$?"
+  rm -f $PID
+  return "$RETVAL"
+}
+
+case "$1" in
+  start)
+    do_start
+    if [ "$?" -gt 0 ];
+    then
+      log_failure_msg "${DESC} did not start"
+    else 
+      log_success_msg "${DESC} started"
+    fi
+    ;;
+  stop)
+    do_stop
+    if [ "$?" -gt 0 ];
+    then
+      log_failure_msg "${DESC} did not stop"
+    else 
+      log_success_msg "${DESC} stopped"
+    fi
+    ;;
+  restart)
+    do_stop
+    if [ "$?" -gt 0 ];
+    then
+      log_failure_msg "${DESC} did not stop"
+    else 
+      do_start
+      if [ "$?" -gt 0 ];
+      then
+        log_failure_msg "${DESC} did not start"
+      else 
+        log_success_msg "${DESC} restarted"
+      fi
+    fi
+    ;;
+  status)
+    pidofproc -p $PID
+    if [ "$?" -gt 0 ];
+    then
+      log_failure_msg "${DESC} is not running"
+    else 
+      log_success_msg "${DESC} is running"
+    fi
+    ;;
+  *)
+    echo "Usage: $SCRIPTNAME {start|stop|restart|status}" >&2
+    exit 3
+    ;;
+esac
+
+exit 0

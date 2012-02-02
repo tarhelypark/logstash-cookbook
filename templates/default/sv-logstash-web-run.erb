@@ -2,4 +2,4 @@
 
 cd <%= node['logstash']['install_path'] %>
 exec 2>&1
-exec chpst -u nobody java -jar logstash-monolithic.jar web
+exec chpst -u <%= node['logstash']['user_login'] %> java -jar logstash-monolithic.jar web <% if ! node['logstash']['elasticsearch']['embedded'] -%>--backend elasticsearch://<%= node['logstash']['elasticsearch']['host'] %>/<% if node['logstash']['elasticsearch']['cluster'] -%><%= node['logstash']['elasticsearch']['cluster'] %><% end -%><% end -%>

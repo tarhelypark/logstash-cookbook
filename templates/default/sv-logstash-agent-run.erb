@@ -2,4 +2,4 @@
 
 cd <%= node['logstash']['install_path'] %>
 exec 2>&1
-exec chpst -u nobody java -jar logstash-monolithic.jar agent -f agent.conf
+exec chpst -u <%= node['logstash']['user_login'] %> java -jar logstash-monolithic.jar agent -f <%= node['logstash']['config_path'] %> <% if  node['logstash']['pattern_path'] -%>--grok-patterns-path <%= node['logstash']['pattern_path'] %><% end -%>
