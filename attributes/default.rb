@@ -39,11 +39,6 @@ default['logstash']['user_group_gid'] = 61022
 default['logstash']['java_agent'] = '256'
 default['logstash']['java_web']   = '256'
 
-# Values:
-# runit [for ubuntu, debian, gentoo ]
-# daemonize [ for RH, centos, scientific]
-#default['logstash']['init_style'] = 'runit'
-
 default['logstash']['elasticsearch']['embedded'] = true
 default['logstash']['elasticsearch']['host']     = 'localhost'
 default['logstash']['elasticsearch']['cluster']  = nil

@@ -96,9 +96,6 @@ if node['logstash']['component'].include?('agent') && node['logstash']['default_
 end
 
 node['logstash']['component'].each do |component|
- # case node['logstash']['init_style']
-#  when 'daemonize'
-
     case node[:platform]
     when 'redhat', 'centos', 'scientific'
       include_recipe "yum::epel"
@@ -119,9 +116,7 @@ node['logstash']['component'].each do |component|
         supports :status => true, :start => true, :stop => true, :restart => true
         action [:enable, :start]
       end
-    #end
-    
-  #when 'runit'
+      
     when 'ubuntu', 'debian', 'gento'
       runit_service "logstash-#{component}"  
     else
