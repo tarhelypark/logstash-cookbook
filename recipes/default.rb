@@ -19,6 +19,16 @@
 
 include_recipe "java"
 
+# Install dependencies
+case "#{node.platform}"
+when "redhat","centos"
+    %w{ redhat-lsb }.each do |pck|
+      package "#{pck}" do
+        action :install
+      end
+    end
+end
+
 root_group = value_for_platform(
   ["openbsd", "freebsd", "mac_os_x"] => { "default" => "wheel" },
   "default" => "root"
@@ -86,8 +96,8 @@ if node['logstash']['component'].include?('agent') && node['logstash']['default_
 end
 
 node['logstash']['component'].each do |component|
-  case node['logstash']['init_style']
-  when 'daemonize'
+ # case node['logstash']['init_style']
+#  when 'daemonize'
 
     case node[:platform]
     when 'redhat', 'centos', 'scientific'
@@ -109,13 +119,14 @@ node['logstash']['component'].each do |component|
         supports :status => true, :start => true, :stop => true, :restart => true
         action [:enable, :start]
       end
+    #end
+    
+  #when 'runit'
+    when 'ubuntu', 'debian', 'gento'
+      runit_service "logstash-#{component}"  
+    else
+      service "logstash-#{component}" do
+        action :nothing
+      end
     end
-
-  when 'runit'
-    runit_service "logstash-#{component}"  
-  else
-    service "logstash-#{component}" do
-      action :nothing
-    end
-  end
 end
